@@ -37,32 +37,6 @@
     </PreferenceCategory>
 
   <PreferenceCategory
-      android:title="@string/incall_vibration">
-
-      <CheckBoxPreference
-          android:key="button_vibrate_outgoing"
-          android:title="@string/vibrate_outgoing"
-          android:persistent="true" />
-
-      <CheckBoxPreference
-          android:key="button_vibrate_call_waiting"
-          android:title="@string/vibrate_call_waiting"
-          android:persistent="true" />
-
-      <CheckBoxPreference
-          android:key="button_vibrate_hangup"
-          android:title="@string/vibrate_hangup"
-          android:persistent="true" />
-
-      <CheckBoxPreference
-          android:key="button_vibrate_45"
-          android:title="@string/vibrate_45"
-          android:persistent="true"
-          android:summary="@string/vibrate_45_sum" />
-
-  </PreferenceCategory>
-
-  <PreferenceCategory
       android:key="button_misc_category_key"
       android:title="@string/other_settings"
       android:persistent="false" />
@@ -120,15 +94,6 @@
           android:title="@string/voicemail_notification_vibrate_when_title"
           android:persistent="true"
           />
-  </PreferenceScreen>
-
-  <PreferenceScreen
-      android:key="button_blacklist"
-      android:title="@string/blacklist_title"
-      android:persistent="false">
-      <intent android:action="android.intent.action.MAIN"
-          android:targetPackage="com.android.settings"
-          android:targetClass="com.android.settings.Settings$BlacklistSettingsActivity" />
   </PreferenceScreen>
 
   <CheckBoxPreference

@@ -30,7 +30,6 @@ import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.TelephonyCapabilities;
 import com.android.internal.telephony.cdma.CdmaCallWaitingNotification;
-import com.android.internal.telephony.gsm.SuppServiceNotification;
 import com.android.phone.CallGatewayManager.RawGatewayInfo;
 import com.android.services.telephony.common.Call;
 import com.android.services.telephony.common.Call.Capabilities;
@@ -96,7 +95,6 @@ public class CallModeler extends Handler {
     private final ArrayList<Listener> mListeners = new ArrayList<Listener>();
     private Connection mCdmaIncomingConnection;
     private Connection mCdmaOutgoingConnection;
-    private boolean mNextGsmCallIsForwarded;
 
     public CallModeler(CallStateMonitor callStateMonitor, CallManager callManager,
             CallGatewayManager callGatewayManager) {
@@ -126,10 +124,7 @@ public class CallModeler extends Handler {
             case CallStateMonitor.PHONE_ON_DIAL_CHARS:
                 onPostDialChars((AsyncResult) msg.obj, (char) msg.arg1);
                 break;
-            case CallStateMonitor.PHONE_SUPP_SERVICE_NOTIFY:
-                onSuppServiceNotification((AsyncResult) msg.obj);
-                break;
-           default:
+            default:
                 break;
         }
     }
@@ -299,12 +294,6 @@ public class CallModeler extends Handler {
         final Call call = getCallFromMap(mCallMap, conn, true);
 
         if (call != null) {
-            Phone phone = conn.getCall().getPhone();
-            if (phone.getPhoneType() == PhoneConstants.PHONE_TYPE_GSM && mNextGsmCallIsForwarded) {
-                call.setForwarded(true);
-                mNextGsmCallIsForwarded = false;
-            }
-
             updateCallFromConnection(call, conn, false);
 
             for (int i = 0; i < mListeners.size(); ++i) {
@@ -359,48 +348,6 @@ public class CallModeler extends Handler {
         PhoneGlobals.getInstance().updateWakeState();
     }
 
-    private void onSuppServiceNotification(AsyncResult r) {
-        SuppServiceNotification notification = (SuppServiceNotification) r.result;
-        Phone gsmPhone = PhoneUtils.getGsmPhone(mCallManager);
-
-        Log.d(TAG, "SS Notification: " + notification);
-
-        if (notification.notificationType != SuppServiceNotification.NOTIFICATION_TYPE_MT) {
-            return;
-        }
-
-        if (notification.code == SuppServiceNotification.MT_CODE_FORWARDED_CALL
-                || notification.code == SuppServiceNotification.MT_CODE_DEFLECTED_CALL) {
-            com.android.internal.telephony.Call ringing = gsmPhone.getRingingCall();
-            if (ringing.getState().isRinging()) {
-                final Call call = getCallFromMap(mCallMap, ringing.getEarliestConnection(), false);
-                if (call != null) {
-                    call.setForwarded(true);
-                    notifyUpdateListeners(call);
-                }
-            } else {
-                mNextGsmCallIsForwarded = true;
-            }
-        } else if (notification.code == SuppServiceNotification.MT_CODE_CALL_ON_HOLD
-                || notification.code == SuppServiceNotification.MT_CODE_CALL_RETRIEVED) {
-            Connection conn = gsmPhone.getForegroundCall().getEarliestConnection();
-            final Call call = getCallFromMap(mCallMap, conn, false);
-            if (call != null) {
-                boolean nowHeld = notification.code ==
-                        SuppServiceNotification.MT_CODE_CALL_ON_HOLD;
-                call.setHeldRemotely(nowHeld);
-                notifyUpdateListeners(call);
-            }
-        }
-    }
-
-    private void notifyUpdateListeners(Call call) {
-        final List<Call> updatedCalls = Lists.newArrayList();
-        updatedCalls.add(call);
-        for (int i = 0; i < mListeners.size(); ++i) {
-            mListeners.get(i).onUpdate(updatedCalls);
-        }
-    }
 
     /**
      * Go through the Calls from CallManager and return the list of calls that were updated.

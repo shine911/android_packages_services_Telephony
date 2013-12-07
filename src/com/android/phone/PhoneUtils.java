@@ -24,7 +24,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -37,7 +36,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemProperties;
-import android.preference.PreferenceManager;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
 import android.util.Log;
@@ -2564,15 +2562,6 @@ public class PhoneUtils {
         return cm.getDefaultPhone();
     }
 
-    public static Phone getGsmPhone(CallManager cm) {
-        for (Phone phone: cm.getAllPhones()) {
-            if (phone.getPhoneType() == PhoneConstants.PHONE_TYPE_GSM) {
-                return phone;
-            }
-        }
-        return null;
-    }
-
     public static Phone getSipPhoneFromUri(CallManager cm, String target) {
         for (Phone phone : cm.getAllPhones()) {
             if (phone.getPhoneType() == PhoneConstants.PHONE_TYPE_SIP) {
@@ -2775,30 +2764,5 @@ public class PhoneUtils {
     public static boolean isLandscape(Context context) {
         return context.getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE;
-    }
-
-    static class PhoneSettings {
-        /* vibration preferences */
-        static boolean vibOn45Secs(Context context) {
-            return getPrefs(context).getBoolean("button_vibrate_45", false);
-        }
-        static boolean vibHangup(Context context) {
-            return getPrefs(context).getBoolean("button_vibrate_hangup", false);
-        }
-        static boolean vibOutgoing(Context context) {
-            return getPrefs(context).getBoolean("button_vibrate_outgoing", false);
-        }
-        static boolean vibCallWaiting(Context context) {
-            return getPrefs(context).getBoolean("button_vibrate_call_waiting", false);
-        }
-
-        /* misc. UI and behaviour preferences */
-        static boolean showInCallEvents(Context context) {
-            return getPrefs(context).getBoolean("button_show_ssn_key", false);
-        }
-
-        private static SharedPreferences getPrefs(Context context) {
-            return PreferenceManager.getDefaultSharedPreferences(context);
-        }
     }
 }
