@@ -39,6 +39,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.CellInfo;
 import android.telephony.ServiceState;
@@ -54,6 +55,7 @@ import com.android.internal.telephony.ITelephony;
 import com.android.internal.telephony.ITelephonyListener;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneConstants;
+import com.android.internal.telephony.RILConstants;
 import com.android.services.telephony.common.Call;
 
 import com.android.internal.util.HexDump;
@@ -950,6 +952,19 @@ public class PhoneInterfaceManager extends ITelephony.Stub implements CallModele
         return mPhone.getLteOnCdmaMode();
     }
 
+    public int getLteOnGsmMode() {
+        return mPhone.getLteOnGsmMode();
+    }
+
+    // Gets the retry count during PIN1/PUK1 verification.
+    public int getIccPin1RetryCount() {
+        return mPhone.getIccCard().getIccPin1RetryCount();
+    }
+
+    public void setPhone(Phone phone) {
+        mPhone = phone;
+    }    
+
     @Override
     public void toggleHold() {
         enforceModifyPermission();
@@ -1192,5 +1207,16 @@ public class PhoneInterfaceManager extends ITelephony.Stub implements CallModele
         public void unlinkDeathRecipient() {
             mBinder.unlinkToDeath(this, 0);
         }
+    }
+
+
+    @Override
+    public void onModifyCall(Call call) {
+        // no-op
+    }
+
+    @Override
+    public void onActiveSubChanged(int activeSub) {
+        // no-op
     }
 }
