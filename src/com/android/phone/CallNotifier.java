@@ -33,6 +33,7 @@ import com.android.internal.telephony.cdma.CdmaCallWaitingNotification;
 import com.android.internal.telephony.cdma.CdmaInformationRecords.CdmaDisplayInfoRec;
 import com.android.internal.telephony.cdma.CdmaInformationRecords.CdmaSignalInfoRec;
 import com.android.internal.telephony.cdma.SignalToneUtil;
+import com.android.internal.util.cm.QuietHoursUtils;
 import com.android.internal.telephony.gsm.SuppServiceNotification;
 import com.android.phone.CallFeaturesSetting;
 import com.android.internal.util.cm.QuietHoursUtils;
@@ -763,8 +764,8 @@ public class CallNotifier extends Handler
      * ringtone. Otherwise we will play the call waiting tone instead.
      * @param c The new ringing connection.
      */
-    protected void ringAndNotifyOfIncomingCall(Connection c) {
-        if (PhoneUtils.isRealIncomingCall(c.getState())) {
+    private void ringAndNotifyOfIncomingCall(Connection c) {
+        if (PhoneUtils.isRealIncomingCall(c.getState()) && !mSilentRingerRequested) {
             mRinger.ring();
         } else {
             if (PhoneUtils.PhoneSettings.vibCallWaiting(mApplication)) {
