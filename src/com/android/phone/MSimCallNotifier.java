@@ -320,7 +320,7 @@ public class MSimCallNotifier extends CallNotifier {
      * ringtone. Otherwise we will play the call waiting tone instead.
      * @param c The new ringing connection.
      */
-    @Override
+    //@Override
     protected void ringAndNotifyOfIncomingCall(Connection c) {
         if (PhoneUtils.isRealIncomingCall(c.getState())) {
             mRinger.ring();
